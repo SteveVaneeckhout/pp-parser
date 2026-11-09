@@ -1,0 +1,243 @@
+import type { FeatureStatus } from "./types.js";
+
+export interface FeatureInfo {
+  readonly status: Exclude<FeatureStatus, "unknown">;
+  /** For an obsolete feature that was renamed: the name to use instead. */
+  readonly replacement?: string;
+  /** For an obsolete feature: why it is obsolete. */
+  readonly note?: string;
+}
+
+// Sources: the W3C registry (webappsec-permissions-policy/features.md) and Chromium's
+// permissions_policy_features.json5, both read on 2026-11-09.
+const STANDARD = [
+  "accelerometer",
+  "ambient-light-sensor",
+  "autoplay",
+  "battery",
+  "bluetooth",
+  "camera",
+  "compute-pressure",
+  "cross-origin-isolated",
+  "direct-sockets",
+  "display-capture",
+  "encrypted-media",
+  "execution-while-not-rendered",
+  "execution-while-out-of-viewport",
+  "fullscreen",
+  "geolocation",
+  "gyroscope",
+  "hid",
+  "identity-credentials-get",
+  "idle-detection",
+  "keyboard-map",
+  "magnetometer",
+  "mediasession",
+  "microphone",
+  "midi",
+  "navigation-override",
+  "otp-credentials",
+  "payment",
+  "picture-in-picture",
+  "publickey-credentials-create",
+  "publickey-credentials-get",
+  "publickey-credentials-remote-client-data-json",
+  "screen-wake-lock",
+  "serial",
+  "storage-access",
+  "sync-xhr",
+  "tools",
+  "usb",
+  "web-share",
+  "window-management",
+  "xr-spatial-tracking",
+];
+
+const PROPOSED = [
+  "autofill",
+  "clipboard-read",
+  "clipboard-write",
+  "deferred-fetch",
+  "deferred-fetch-minimal",
+  "gamepad",
+  "haptics",
+  "language-detector",
+  "language-model",
+  "manual-text",
+  "rewriter",
+  "speaker-selection",
+  "summarizer",
+  "translator",
+  "writer",
+];
+
+const EXPERIMENTAL = [
+  "all-screens-capture",
+  "aria-notify",
+  "captured-surface-control",
+  "controlled-frame",
+  "device-attributes",
+  "digital-credentials-create",
+  "digital-credentials-get",
+  "direct-sockets-multicast",
+  "focus-without-user-activation",
+  "local-fonts",
+  "local-network",
+  "local-network-access",
+  "loopback-network",
+  "media-playback-while-not-visible",
+  "monetization",
+  "on-device-speech-recognition",
+  "private-state-token-issuance",
+  "private-state-token-redemption",
+  "proofreader",
+  "semantic-embedder",
+  "smart-card",
+  "sub-apps",
+  "unbounded-element",
+  "unload",
+  "usb-unrestricted",
+  "vertical-scroll",
+  "web-app-installation",
+  "web-printing",
+  "webnn",
+];
+
+const CLIENT_HINTS = [
+  "ch-device-memory",
+  "ch-downlink",
+  "ch-dpr",
+  "ch-ect",
+  "ch-prefers-color-scheme",
+  "ch-prefers-reduced-motion",
+  "ch-prefers-reduced-transparency",
+  "ch-rtt",
+  "ch-save-data",
+  "ch-ua",
+  "ch-ua-arch",
+  "ch-ua-bitness",
+  "ch-ua-form-factors",
+  "ch-ua-full-version",
+  "ch-ua-full-version-list",
+  "ch-ua-high-entropy-values",
+  "ch-ua-mobile",
+  "ch-ua-model",
+  "ch-ua-platform",
+  "ch-ua-platform-version",
+  "ch-ua-wow64",
+  "ch-viewport-height",
+  "ch-viewport-width",
+  "ch-width",
+];
+
+const PRIVACY_SANDBOX = "it belongs to a Privacy Sandbox API that Chromium no longer supports";
+const REMOVED_EXPERIMENT = "it was an experimental feature that browsers removed";
+const NEVER_SHIPPED = "it was proposed but never shipped in a browser";
+
+const OBSOLETE: readonly (readonly [string, Omit<FeatureInfo, "status">])[] = [
+  ["attribution-reporting", { note: PRIVACY_SANDBOX }],
+  ["browsing-topics", { note: PRIVACY_SANDBOX }],
+  [
+    "conversion-measurement",
+    { note: "it is the old name of attribution-reporting, which Chromium no longer supports" },
+  ],
+  ["ch-lang", { note: "the Lang client hint was removed" }],
+  ["document-domain", { note: "the W3C registry lists it as retired" }],
+  ["document-write", { note: REMOVED_EXPERIMENT }],
+  ["interest-cohort", { note: "FLoC was abandoned and removed from Chrome" }],
+  ["join-ad-interest-group", { note: PRIVACY_SANDBOX }],
+  ["layout-animations", { note: REMOVED_EXPERIMENT }],
+  ["lazyload", { note: REMOVED_EXPERIMENT }],
+  ["legacy-image-formats", { note: REMOVED_EXPERIMENT }],
+  ["notifications", { note: NEVER_SHIPPED }],
+  ["oversized-images", { note: REMOVED_EXPERIMENT }],
+  ["private-aggregation", { note: PRIVACY_SANDBOX }],
+  ["push", { note: NEVER_SHIPPED }],
+  ["run-ad-auction", { note: PRIVACY_SANDBOX }],
+  ["shared-autofill", { note: REMOVED_EXPERIMENT }],
+  ["shared-storage", { note: PRIVACY_SANDBOX }],
+  ["shared-storage-select-url", { note: PRIVACY_SANDBOX }],
+  ["speaker", { replacement: "speaker-selection" }],
+  ["sync-script", { note: REMOVED_EXPERIMENT }],
+  ["trust-token-redemption", { replacement: "private-state-token-redemption" }],
+  ["unoptimized-images", { note: REMOVED_EXPERIMENT }],
+  ["unoptimized-lossless-images", { note: REMOVED_EXPERIMENT }],
+  ["unoptimized-lossless-images-strict", { note: REMOVED_EXPERIMENT }],
+  ["unoptimized-lossy-images", { note: REMOVED_EXPERIMENT }],
+  ["unsized-media", { note: REMOVED_EXPERIMENT }],
+  ["vibrate", { note: NEVER_SHIPPED }],
+  ["vr", { replacement: "xr-spatial-tracking" }],
+  ["wake-lock", { replacement: "screen-wake-lock" }],
+  ["window-placement", { replacement: "window-management" }],
+];
+
+export const FEATURES: ReadonlyMap<string, FeatureInfo> = new Map<string, FeatureInfo>([
+  ...STANDARD.map((name) => [name, { status: "standard" }] as const),
+  ...PROPOSED.map((name) => [name, { status: "proposed" }] as const),
+  ...EXPERIMENTAL.map((name) => [name, { status: "experimental" }] as const),
+  ...CLIENT_HINTS.map((name) => [name, { status: "client-hint" }] as const),
+  ...OBSOLETE.map(([name, info]) => [name, { status: "obsolete", ...info }] as const),
+]);
+
+// Names that are not close to a feature by spelling but clearly mean one.
+export const ALIASES: ReadonlyMap<string, string> = new Map([
+  ["browse-topics", "browsing-topics"],
+  ["browser-topics", "browsing-topics"],
+  ["fullscreen-api", "fullscreen"],
+  ["otp", "otp-credentials"],
+  ["topics", "browsing-topics"],
+  ["webauthn", "publickey-credentials-get"],
+  ["webusb", "usb"],
+  ["xr", "xr-spatial-tracking"],
+]);
+
+// Names that read as a whole-policy value ("none", "*", "true") rather than a feature.
+export const NOT_FEATURES: ReadonlySet<string> = new Set([
+  "*",
+  "all",
+  "allow",
+  "deny",
+  "false",
+  "none",
+  "self",
+  "true",
+  "wildcards",
+]);
+
+// Features that gate access to devices, sensors, credentials or user data. Allowing them for every
+// origin ("*") lets any embedded third-party frame ask for them.
+export const POWERFUL_FEATURES: ReadonlySet<string> = new Set([
+  "accelerometer",
+  "all-screens-capture",
+  "ambient-light-sensor",
+  "bluetooth",
+  "camera",
+  "captured-surface-control",
+  "clipboard-read",
+  "digital-credentials-create",
+  "digital-credentials-get",
+  "direct-sockets",
+  "display-capture",
+  "geolocation",
+  "gyroscope",
+  "hid",
+  "identity-credentials-get",
+  "idle-detection",
+  "local-fonts",
+  "local-network",
+  "local-network-access",
+  "loopback-network",
+  "magnetometer",
+  "microphone",
+  "midi",
+  "otp-credentials",
+  "payment",
+  "publickey-credentials-create",
+  "publickey-credentials-get",
+  "serial",
+  "smart-card",
+  "speaker-selection",
+  "usb",
+  "usb-unrestricted",
+  "window-management",
+]);

@@ -1,0 +1,54 @@
+{
+  "name": "pp-parser",
+  "version": "1.0.0",
+  "description": "Analyze and validate an HTTP Permissions-Policy header",
+  "keywords": [
+    "feature-policy",
+    "http-header",
+    "parser",
+    "permissions-policy",
+    "security",
+    "structured-fields",
+    "validator"
+  ],
+  "license": "MIT",
+  "author": "Steve Vaneeckhout",
+  "repository": "https://github.com/SteveVaneeckhout/pp-parser",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@vitest/coverage-v8": "^5.1.0",
+    "oxfmt": "^0.76.0",
+    "oxlint": "^1.91.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.6",
+    "vitest": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=26.13.0"
+  }
+}
